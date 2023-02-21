@@ -551,20 +551,22 @@ class GalleryItem extends StatelessWidget {
       offset: transformInfo.offset,
       child: Visibility(
         visible: isVisiable(),
-        child: !isVisiable() ? SizedBox(width: config.width,height: config.height) : Container(
-          width: config.width,
-          height: config.height,
-          child: Transform.scale(
-            scale: transformInfo.scale,
-            child: InkWell(
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              onTap: () => onClick?.call(index),
-              child: _buildShadowItem(_buildRadiusItem(
-                  _buildMaskTransformItem(_buildItem(context)))),
-            ),
-          ),
-        ),
+        child: !isVisiable()
+            ? SizedBox(width: config.width, height: config.height)
+            : Container(
+                width: config.width,
+                height: config.height,
+                child: Transform.scale(
+                  scale: transformInfo.scale,
+                  child: InkWell(
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onTap: () => onClick?.call(index),
+                    child: _buildShadowItem(_buildRadiusItem(
+                        _buildMaskTransformItem(_buildItem(context)))),
+                  ),
+                ),
+              ),
       ),
     );
   }
