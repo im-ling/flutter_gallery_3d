@@ -551,7 +551,7 @@ class GalleryItem extends StatelessWidget {
       offset: transformInfo.offset,
       child: Visibility(
         visible: isVisiable(),
-        child: Container(
+        child: !isVisiable() ? SizedBox(width: config.width,height: config.height) : Container(
           width: config.width,
           height: config.height,
           child: Transform.scale(
