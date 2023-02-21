@@ -4,10 +4,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 bool global_isOverFive = false;
+bool global_isLessTen = false;
 int global_itemCount = 0;
 
 class Gallery3D extends StatefulWidget {
-  final int itemCount;
+  int itemCount;
   final GalleryItemConfig itemConfig;
   final double? height;
   final double width;
@@ -85,6 +86,7 @@ class _Gallery3DState extends State<Gallery3D>
     }
     global_isOverFive = isOverFive();
     global_itemCount = widget.itemCount;
+    global_isLessTen = widget.itemCount < 10;
 
     _initGalleryTransformInfoMap();
     _updateWidgetIndexOnStack();
@@ -251,11 +253,22 @@ class _Gallery3DState extends State<Gallery3D>
         angle += 180;
       }
     } else {
-      if (angle < 0) {
-        angle += widget.itemCount * 36;
-      }
-      if (angle > widget.itemCount * 36) {
-        angle -= widget.itemCount * 36;
+      if (global_isLessTen) {
+        var lackAngle = 18.0 * (10 - widget.itemCount);
+        if (angle < lackAngle) {
+          var offset = (lackAngle - angle);
+          angle = 360.0 - lackAngle - offset;
+        } else if (angle > 360 - lackAngle) {
+          var offset = (angle - (360 - lackAngle));
+          angle = lackAngle + offset;
+        }
+      } else {
+        if (angle < 0) {
+          angle += widget.itemCount * 36;
+        }
+        if (angle > widget.itemCount * 36) {
+          angle -= widget.itemCount * 36;
+        }
       }
     }
     return angle.round();
@@ -435,7 +448,7 @@ class _Gallery3DState extends State<Gallery3D>
 
     _rightWidgetList.forEach((element) {
       if (element.transformInfo.angle < _unitAngle / 2) {
-        if (isOverFive()) {
+        if (widget.itemCount > 9) {
           element.transformInfo.angle += widget.itemCount * 36;
         } else {
           element.transformInfo.angle += 360;
