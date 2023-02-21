@@ -71,7 +71,7 @@ class _Gallery3DState extends State<Gallery3D>
 
   @override
   void initState() {
-    _unitAngle = 360 / widget.itemCount;
+    _unitAngle = 180 / widget.itemCount;
     _initGalleryTransformInfoMap();
     _updateWidgetIndexOnStack();
     if (widget.autoLoop) {
@@ -225,10 +225,10 @@ class _Gallery3DState extends State<Gallery3D>
 
   ///获取最终的angle
   int getFinalAngle(num angle) {
-    if (angle >= 360) {
-      angle -= 360;
-    } else if (angle < 0) {
-      angle += 360;
+    if (angle >= 270) {
+      angle -= 180;
+    } else if (angle < 90) {
+      angle += 180;
     }
     return angle.round();
   }
