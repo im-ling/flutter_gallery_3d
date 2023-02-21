@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+bool global_isOverFive = false;
+int global_itemCount = 0;
+
 class Gallery3D extends StatefulWidget {
   final int itemCount;
   final GalleryItemConfig itemConfig;
@@ -69,9 +72,20 @@ class _Gallery3DState extends State<Gallery3D>
     return milliseconds;
   }
 
+  bool isOverFive() {
+    return widget.itemCount > 5;
+  }
+
   @override
   void initState() {
-    _unitAngle = 180 / widget.itemCount;
+    if (isOverFive()) {
+      _unitAngle = 36.0;
+    } else {
+      _unitAngle = 180.0 / widget.itemCount;
+    }
+    global_isOverFive = isOverFive();
+    global_itemCount = widget.itemCount;
+
     _initGalleryTransformInfoMap();
     _updateWidgetIndexOnStack();
     if (widget.autoLoop) {
@@ -225,10 +239,24 @@ class _Gallery3DState extends State<Gallery3D>
 
   ///获取最终的angle
   int getFinalAngle(num angle) {
-    if (angle >= 270) {
-      angle -= 180;
-    } else if (angle < 90) {
-      angle += 180;
+    if (!isOverFive()) {
+      if (angle >= 360) {
+        angle -= 360;
+      } else if (angle < 0) {
+        angle += 360;
+      }
+      if (angle >= 270) {
+        angle -= 180;
+      } else if (angle < 90) {
+        angle += 180;
+      }
+    } else {
+      if (angle < 0) {
+        angle += widget.itemCount * 36;
+      }
+      if (angle > widget.itemCount * 36) {
+        angle -= widget.itemCount * 36;
+      }
     }
     return angle.round();
   }
@@ -407,7 +435,11 @@ class _Gallery3DState extends State<Gallery3D>
 
     _rightWidgetList.forEach((element) {
       if (element.transformInfo.angle < _unitAngle / 2) {
-        element.transformInfo.angle += 360;
+        if (isOverFive()) {
+          element.transformInfo.angle += widget.itemCount * 36;
+        } else {
+          element.transformInfo.angle += 360;
+        }
         _tempList.add(element);
       }
     });
@@ -505,21 +537,32 @@ class GalleryItem extends StatelessWidget {
         child: child, decoration: BoxDecoration(boxShadow: config.shadows));
   }
 
+  bool isVisiable() {
+    // return true;
+    if (!global_isOverFive) return true;
+    if (transformInfo.angle < 180 + 36 * 3 && transformInfo.angle > 180 - 108)
+      return true;
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
       offset: transformInfo.offset,
-      child: Container(
-        width: config.width,
-        height: config.height,
-        child: Transform.scale(
-          scale: transformInfo.scale,
-          child: InkWell(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            onTap: () => onClick?.call(index),
-            child: _buildShadowItem(
-                _buildRadiusItem(_buildMaskTransformItem(_buildItem(context)))),
+      child: Visibility(
+        visible: isVisiable(),
+        child: Container(
+          width: config.width,
+          height: config.height,
+          child: Transform.scale(
+            scale: transformInfo.scale,
+            child: InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              onTap: () => onClick?.call(index),
+              child: _buildShadowItem(_buildRadiusItem(
+                  _buildMaskTransformItem(_buildItem(context)))),
+            ),
           ),
         ),
       ),
